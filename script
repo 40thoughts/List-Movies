@@ -1,0 +1,56 @@
+#!/bin/bash
+
+localMoviesFile="./localMovies"
+remoteMoviesFile="./remoteMovies"
+
+echo "Chemin du dossier de films local :"
+read localFolder
+
+echo "Chemin du dossier de films distant :"
+read remoteFolder
+
+echo "Construction de la liste locale"
+ls -R $localFolder | grep -P "\.avi|\.mkv|\.mp4" >> ./localMovies
+
+echo "Construction de la liste distante"
+ls -R $remoteFolder | grep -P "\.avi|\.mkv|\.mp4" >> ./remoteMovies
+
+echo "Voulez-vous connaitre les films absents du dossier local ? (o/n)"
+read compareLocal
+if [ "$compareLocal" == "o" ]
+then
+    echo "Films supplémentaires dans $remoteFolder"
+
+    while read line
+    do
+        compare=$(grep "$line" $localMoviesFile)
+        if [ -z "$compare" ]
+        then
+            echo $line
+        fi
+    done < $remoteMoviesFile
+fi
+
+echo "Voulez-vous connaitre les films absents du dossier distant ? (o/n)"
+read compareRemote
+if [ "$compareRemote" == "o" ]
+then
+    echo "Films supplémentaires dans $localFolder"
+
+    while read line
+    do
+        compare=$(grep "$line" $remoteMoviesFile)
+        if [ -z "$compare" ]
+        then
+            echo $line 
+        fi
+    done < $localMoviesFile
+fi
+
+echo "Voulez-vous supprimer les listes de films générées ? (o/n)"
+read rmMoviesLists
+if [ "$rmMoviesLists" == "o" ]
+then
+    rm $localMoviesFile
+    rm $remoteMoviesFile
+fi
